@@ -1,4 +1,5 @@
-import com.edu.iub.myfirstproyect.model.UserRole
+package com.edu.iub.myfirstproyect.model
+
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Enumerated
