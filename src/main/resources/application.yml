@@ -15,5 +15,9 @@ spring:
 
 app:
     jwt:
-        secret: ${JWT_SECRET:dev-secret-change-me}
+        secret: ${JWT_SECRET:this-is-a-much-longer-dev-secret-key-1234567890}
         expiration-minutes: ${JWT_EXPIRATION_MINUTES:30}
+
+logging:
+    level:
+        org.springframework.security: DEBUG

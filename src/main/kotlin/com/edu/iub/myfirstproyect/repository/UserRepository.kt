@@ -1,6 +1,6 @@
 package com.edu.iub.myfirstproyect.repository
 
-import User
+import com.edu.iub.myfirstproyect.model.User
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface UserRepository: JpaRepository<User, Long> {
