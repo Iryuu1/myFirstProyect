@@ -1,12 +1,15 @@
 package com.edu.iub.myfirstproyect.controller
 
+import com.edu.iub.myfirstproyect.dto.MessageResponse
 import com.edu.iub.myfirstproyect.dto.UserResponse
+import com.edu.iub.myfirstproyect.dto.user.ChangePasswordRequest
 import com.edu.iub.myfirstproyect.dto.user.UpdateProfileRequest
 import com.edu.iub.myfirstproyect.service.UserService
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -29,5 +32,14 @@ class UserController(
         authentication: Authentication
     ): ResponseEntity<UserResponse> {
         return ResponseEntity.ok(userService.updateProfile(authentication.name, request))
+    }
+
+    @PostMapping("/me/change-password")
+    fun changePassword(
+        @Valid @RequestBody request: ChangePasswordRequest,
+        authentication: Authentication
+    ): ResponseEntity<MessageResponse> {
+        userService.changePassword(authentication.name, request)
+        return ResponseEntity.ok(MessageResponse("Password changed successfully"))
     }
 }
