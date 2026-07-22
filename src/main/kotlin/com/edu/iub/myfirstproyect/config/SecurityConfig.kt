@@ -32,7 +32,9 @@ class SecurityConfig(
                 it.requestMatchers(
                     "/swagger-ui/**",
                     "/swagger-ui.html",
-                    "/v3/api-docs/**"
+                    "/v3/api-docs/**",
+                    "/swagger-resources/**",
+                    "/webjars/**"
                 ).permitAll()
                 it.requestMatchers(HttpMethod.GET, "/users").hasRole("ADMIN")
                 it.requestMatchers(HttpMethod.PUT, "/users/*/role").hasRole("ADMIN")
