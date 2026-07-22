@@ -5,11 +5,11 @@ import com.edu.iub.myfirstproyect.dto.LoginRequest
 import com.edu.iub.myfirstproyect.dto.RegisterRequest
 import com.edu.iub.myfirstproyect.dto.TokenResponse
 import com.edu.iub.myfirstproyect.dto.UserResponse
+import com.edu.iub.myfirstproyect.exception.InvalidCredentialsException
+import com.edu.iub.myfirstproyect.exception.DuplicateResourceException
 import com.edu.iub.myfirstproyect.repository.UserRepository
-import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
-import org.springframework.web.server.ResponseStatusException
 
 
 @Service
@@ -21,11 +21,7 @@ class AuthService(
      fun register(request: RegisterRequest): UserResponse{
         val email = request.Email.trim().lowercase()
         if (userRepository.existsByEmail(email)){
-            throw ResponseStatusException(
-                HttpStatus.CONFLICT,
-                "Email already exists"
-
-            )
+            throw DuplicateResourceException("Email already exists")
         }
 
         val user = User(
@@ -38,10 +34,10 @@ class AuthService(
     fun login(request: LoginRequest): TokenResponse {
         val email = request.email.trim().lowercase()
         val user = userRepository.findByEmail(email)
-            ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials")
+            ?: throw InvalidCredentialsException("Invalid credentials")
 
         if (!user.active || !passwordEncoder.matches(request.password, user.password)) {
-            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials")
+            throw InvalidCredentialsException("Invalid credentials")
         }
 
         val token = jwtService.generateToken(user)

@@ -4,12 +4,14 @@ import com.edu.iub.myfirstproyect.dto.UserResponse
 import com.edu.iub.myfirstproyect.dto.user.ChangePasswordRequest
 import com.edu.iub.myfirstproyect.dto.user.UpdateProfileRequest
 import com.edu.iub.myfirstproyect.dto.user.UpdateUserRoleRequest
+import com.edu.iub.myfirstproyect.exception.DuplicateResourceException
+import com.edu.iub.myfirstproyect.exception.InvalidCredentialsException
+import com.edu.iub.myfirstproyect.exception.InvalidRequestException
+import com.edu.iub.myfirstproyect.exception.ResourceNotFoundException
 import com.edu.iub.myfirstproyect.model.User
 import com.edu.iub.myfirstproyect.repository.UserRepository
-import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
-import org.springframework.web.server.ResponseStatusException
 
 @Service
 class UserService(
@@ -28,7 +30,7 @@ class UserService(
         request.email?.let { newEmail ->
             val normalizedEmail = newEmail.trim().lowercase()
             if (userRepository.existsByEmailAndIdNot(normalizedEmail, requireNotNull(user.id))) {
-                throw ResponseStatusException(HttpStatus.CONFLICT, "Email already exists")
+                throw DuplicateResourceException("Email already exists")
             }
             user.email = normalizedEmail
         }
@@ -42,7 +44,7 @@ class UserService(
         val user = findUserByEmail(currentEmail)
 
         if (!passwordEncoder.matches(request.currentPassword, user.password)) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Current password is invalid")
+            throw InvalidRequestException("Current password is invalid")
         }
 
         user.password = passwordEncoder.encode(request.newPassword)!!
@@ -55,7 +57,7 @@ class UserService(
 
     fun updateRole(userId: Long, request: UpdateUserRoleRequest): UserResponse {
         val user = userRepository.findById(userId)
-            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "User not found") }
+            .orElseThrow { ResourceNotFoundException("User not found") }
 
         user.role = requireNotNull(request.role)
         return userRepository.save(user).toResponse()
@@ -63,7 +65,7 @@ class UserService(
 
     private fun findUserByEmail(email: String) =
         userRepository.findByEmail(email)
-            ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found")
+            ?: throw InvalidCredentialsException("User not found")
 
     private fun User.toResponse(): UserResponse {
         return UserResponse(
