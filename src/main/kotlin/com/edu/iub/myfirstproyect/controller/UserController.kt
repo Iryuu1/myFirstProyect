@@ -4,11 +4,13 @@ import com.edu.iub.myfirstproyect.dto.MessageResponse
 import com.edu.iub.myfirstproyect.dto.UserResponse
 import com.edu.iub.myfirstproyect.dto.user.ChangePasswordRequest
 import com.edu.iub.myfirstproyect.dto.user.UpdateProfileRequest
+import com.edu.iub.myfirstproyect.dto.user.UpdateUserRoleRequest
 import com.edu.iub.myfirstproyect.service.UserService
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -41,5 +43,18 @@ class UserController(
     ): ResponseEntity<MessageResponse> {
         userService.changePassword(authentication.name, request)
         return ResponseEntity.ok(MessageResponse("Password changed successfully"))
+    }
+
+    @GetMapping
+    fun list(): ResponseEntity<List<UserResponse>> {
+        return ResponseEntity.ok(userService.getAllUsers())
+    }
+
+    @PutMapping("/{id}/role")
+    fun updateRole(
+        @PathVariable id: Long,
+        @Valid @RequestBody request: UpdateUserRoleRequest
+    ): ResponseEntity<UserResponse> {
+        return ResponseEntity.ok(userService.updateRole(id, request))
     }
 }
