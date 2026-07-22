@@ -34,6 +34,9 @@ class SecurityConfig(
                     "/swagger-ui.html",
                     "/v3/api-docs/**"
                 ).permitAll()
+                it.requestMatchers(HttpMethod.GET, "/users").hasRole("ADMIN")
+                it.requestMatchers(HttpMethod.PUT, "/users/*/role").hasRole("ADMIN")
+                it.requestMatchers(HttpMethod.GET, "/tasks/all").hasRole("ADMIN")
                 it.anyRequest().authenticated()
             }
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)

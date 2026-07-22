@@ -55,9 +55,7 @@ class TaskController(private val taskService: TaskService) {
         return ResponseEntity.noContent().build()
     }
 
-    // NOTA: sin restriccion de rol por ahora. Spring Security solo exige
-    // "autenticado" (ver SecurityConfig). Cuando llegue feature/roles,
-    // proteger esta ruta con hasRole("ADMIN").
+    // Protegido con hasRole("ADMIN") en SecurityConfig.
     @GetMapping("/all")
     fun listAll(): List<TaskResponse> {
         return taskService.getAllTasks()

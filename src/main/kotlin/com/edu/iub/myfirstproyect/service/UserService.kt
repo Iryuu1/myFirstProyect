@@ -3,6 +3,7 @@ package com.edu.iub.myfirstproyect.service
 import com.edu.iub.myfirstproyect.dto.UserResponse
 import com.edu.iub.myfirstproyect.dto.user.ChangePasswordRequest
 import com.edu.iub.myfirstproyect.dto.user.UpdateProfileRequest
+import com.edu.iub.myfirstproyect.dto.user.UpdateUserRoleRequest
 import com.edu.iub.myfirstproyect.model.User
 import com.edu.iub.myfirstproyect.repository.UserRepository
 import org.springframework.http.HttpStatus
@@ -46,6 +47,18 @@ class UserService(
 
         user.password = passwordEncoder.encode(request.newPassword)!!
         userRepository.save(user)
+    }
+
+    fun getAllUsers(): List<UserResponse> {
+        return userRepository.findAll().map { it.toResponse() }
+    }
+
+    fun updateRole(userId: Long, request: UpdateUserRoleRequest): UserResponse {
+        val user = userRepository.findById(userId)
+            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "User not found") }
+
+        user.role = requireNotNull(request.role)
+        return userRepository.save(user).toResponse()
     }
 
     private fun findUserByEmail(email: String) =
