@@ -1,16 +1,19 @@
 package com.edu.iub.myfirstproyect.service
 
 import com.edu.iub.myfirstproyect.dto.UserResponse
+import com.edu.iub.myfirstproyect.dto.user.ChangePasswordRequest
 import com.edu.iub.myfirstproyect.dto.user.UpdateProfileRequest
 import com.edu.iub.myfirstproyect.model.User
 import com.edu.iub.myfirstproyect.repository.UserRepository
 import org.springframework.http.HttpStatus
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
 
 @Service
 class UserService(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val passwordEncoder: PasswordEncoder
 ) {
 
     fun getProfile(currentEmail: String): UserResponse {
@@ -32,6 +35,17 @@ class UserService(
         request.fullName?.let { user.fullName = it.trim() }
 
         return userRepository.save(user).toResponse()
+    }
+
+    fun changePassword(currentEmail: String, request: ChangePasswordRequest) {
+        val user = findUserByEmail(currentEmail)
+
+        if (!passwordEncoder.matches(request.currentPassword, user.password)) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Current password is invalid")
+        }
+
+        user.password = passwordEncoder.encode(request.newPassword)!!
+        userRepository.save(user)
     }
 
     private fun findUserByEmail(email: String) =
