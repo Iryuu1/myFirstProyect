@@ -3,13 +3,14 @@ package com.edu.iub.myfirstproyect.service
 import com.edu.iub.myfirstproyect.dto.task.TaskCreateRequest
 import com.edu.iub.myfirstproyect.dto.task.TaskResponse
 import com.edu.iub.myfirstproyect.dto.task.TaskUpdateRequest
+import com.edu.iub.myfirstproyect.exception.InvalidCredentialsException
+import com.edu.iub.myfirstproyect.exception.InvalidStatusTransitionException
+import com.edu.iub.myfirstproyect.exception.ResourceNotFoundException
 import com.edu.iub.myfirstproyect.model.Task
 import com.edu.iub.myfirstproyect.model.TaskStatus
 import com.edu.iub.myfirstproyect.repository.TaskRepository
 import com.edu.iub.myfirstproyect.repository.UserRepository
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
-import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDateTime
 
 @Service
@@ -37,14 +38,14 @@ class TaskService(
     fun getTask(id: Long, ownerEmail: String): TaskResponse {
         val owner = findUserByEmail(ownerEmail)
         val task = taskRepository.findByIdAndOwnerId(id, requireNotNull(owner.id))
-            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found")
+            ?: throw ResourceNotFoundException("Task not found")
         return task.toResponse()
     }
 
     fun updateTask(id: Long, ownerEmail: String, request: TaskUpdateRequest): TaskResponse {
         val owner = findUserByEmail(ownerEmail)
         val task = taskRepository.findByIdAndOwnerId(id, requireNotNull(owner.id))
-            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found")
+            ?: throw ResourceNotFoundException("Task not found")
 
         request.status?.let { validateStatusTransition(task.status, it) }
 
@@ -60,7 +61,7 @@ class TaskService(
     fun deleteTask(id: Long, ownerEmail: String) {
         val owner = findUserByEmail(ownerEmail)
         val task = taskRepository.findByIdAndOwnerId(id, requireNotNull(owner.id))
-            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found")
+            ?: throw ResourceNotFoundException("Task not found")
         taskRepository.delete(task)
     }
 
@@ -70,7 +71,7 @@ class TaskService(
 
     private fun findUserByEmail(email: String) =
         userRepository.findByEmail(email)
-            ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found")
+            ?: throw InvalidCredentialsException("User not found")
 
     private fun validateStatusTransition(current: TaskStatus, next: TaskStatus) {
         if (current == next) return
@@ -82,7 +83,7 @@ class TaskService(
         }
 
         if (!allowed) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid task status transition")
+            throw InvalidStatusTransitionException("Invalid task status transition")
         }
     }
 
