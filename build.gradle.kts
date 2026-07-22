@@ -44,7 +44,7 @@ dependencies {
     implementation(kotlin("stdlib"))
 
     // Swagger / OpenAPI
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6")
 }
 
 kotlin {
